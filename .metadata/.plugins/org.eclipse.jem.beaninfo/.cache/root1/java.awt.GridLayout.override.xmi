@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:event="event.xmi" xmlns:org.eclipse.jem.internal.java="java.xmi" xmlns:org.eclipse.ve.internal.cde.decorators="http:///org/eclipse/ve/internal/cde/decorators.ecore" xmlns:org.eclipse.ve.internal.jcm="http:///org/eclipse/ve/internal/jcm.ecore">
+  <event:AddMany featureName="eAnnotations">
+    <addedEObjects xsi:type="org.eclipse.ve.internal.jcm:BeanDecorator">
+      <keyedValues xsi:type="ecore:EStringToStringMapEntry" key="org.eclipse.ve.internal.java.visual.layoutpolicyfactoryclassnamekey" value="org.eclipse.ve.jfc/org.eclipse.ve.internal.jfc.core.GridLayoutPolicyFactory"/>
+    </addedEObjects>
+  </event:AddMany>
+  <event:AddMany featureName="eStructuralFeatures">
+    <addedEObjects xsi:type="ecore:EReference" name="rows" eType="org.eclipse.jem.internal.java:JavaDataType java:/#int" unsettable="true">
+      <eAnnotations xsi:type="org.eclipse.ve.internal.cde.decorators:BasePropertyDecorator">
+        <cellEditorValidatorClassnames>org.eclipse.ve.jfc/org.eclipse.ve.internal.jfc.core.GridLayoutRowColumnValidator</cellEditorValidatorClassnames>
+      </eAnnotations>
+    </addedEObjects>
+    <addedEObjects xsi:type="ecore:EReference" name="columns" eType="org.eclipse.jem.internal.java:JavaDataType java:/#int" unsettable="true">
+      <eAnnotations xsi:type="org.eclipse.ve.internal.cde.decorators:BasePropertyDecorator">
+        <cellEditorValidatorClassnames>org.eclipse.ve.jfc/org.eclipse.ve.internal.jfc.core.GridLayoutRowColumnValidator</cellEditorValidatorClassnames>
+      </eAnnotations>
+    </addedEObjects>
+  </event:AddMany>
+</xmi:XMI>

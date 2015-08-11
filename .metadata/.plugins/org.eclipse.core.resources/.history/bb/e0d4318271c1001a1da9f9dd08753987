@@ -1,0 +1,108 @@
+package net;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.Security;
+
+import Gui.MainGui;
+import data.Configuracion;
+/**
+ * es la clase que se encanga de comunicarse con el servidor web en princio en https
+ * @author Elena
+ *
+ */
+public class https implements Runnable {
+
+	private boolean threadSuspended;
+	private volatile Thread blinker;
+	protected MainGui gui = null;
+	protected int contadorFallos = 0;
+	/** Retraso en el hilo en milisegundos */
+	protected static final int DELAY = 10000;
+	
+//	==================================================================	
+	public https(MainGui gui)
+//	==================================================================	
+	{
+		this.gui=gui;
+	}
+//	==================================================================	
+	public void start() 
+//	==================================================================	
+	{
+		blinker = new Thread(this);
+		blinker.start();
+	}
+
+//	==================================================================	
+	public void run() 
+//	==================================================================	
+	{
+		Thread  thisThread= Thread.currentThread();
+		while (blinker == thisThread) {
+			try {         	
+				thisThread.sleep( DELAY );
+				conectar();
+				synchronized(this) {
+					while (threadSuspended && blinker==thisThread)
+						wait();
+				}
+			} catch (InterruptedException e){
+				e.printStackTrace();				
+			}
+		}
+	}
+//	==================================================================	
+	public synchronized void stop() 
+//	==================================================================	
+	{
+		blinker = null;
+		notify();
+	}
+
+//	==================================================================	
+	public void conectar()
+//	==================================================================	
+	{
+		try{
+			System.setProperty("java.protocol.handler.pkgs","com.sun.net.ssl.internal.www.protocol");
+			Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+			Configuracion conf = gui.sys.getConfiguracion();
+			conf.conseguirValor("servidor");
+			URL url = new URL(conf.conseguirValor("servidor")+"/getData.php");
+			URLConnection k = url.openConnection();
+			k.addRequestProperty("charset","ISO-8859-1");
+			k.setDoOutput( true);                         // Conexión para salida
+			k.setUseCaches( false );                      // El navegador no usa caché
+			PrintWriter salida = new PrintWriter( k.getOutputStream() );
+			salida.print( "numero_serie=1&numero_empresa=1&cod_activacion=1");
+			salida.flush();
+			salida.close();
+
+			BufferedReader in = new BufferedReader(new InputStreamReader(k.getInputStream()));
+			String inputLine=" ";
+
+			while( ( inputLine = in.readLine() ) !=null ){
+				gui.cambiarSemaforo(1);
+				contadorFallos = 0;			
+				inputLine=" ";
+			}
+
+			in.close();				
+			// k.addRequestProperty()
+
+		}catch( Exception e){
+			contadorFallos++;
+			if( contadorFallos >= 5 ) //Si al minuto no hemos logrado conexion lo ponemos en rojo
+				gui.cambiarSemaforo(3);
+			else
+				gui.cambiarSemaforo(2);
+			//e.printStackTrace();
+		}
+
+	}
+
+}

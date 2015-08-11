@@ -1,0 +1,207 @@
+package data;
+
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Hashtable;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+
+import log.LogWriter;
+
+import org.firebirdsql.pool.FBWrappingDataSource;
+
+import Gui.ErrorPane;
+import Gui.SelectTecnopolis;
+
+
+public class SysData{
+	
+	private FBWrappingDataSource dataSource;
+	protected Configuracion conf;
+	private FBWrappingDataSource dataSourceTecno;
+	
+	/**Clase encargada de realizar la conexion a la base de datos*/
+//	==================================================================	
+	public SysData()
+//	==================================================================	
+	//realizo la conexion con la base de datos
+	{
+		String out = new String();
+		File descriptor = new File(".");
+		String rutaTmp = new String(descriptor.getAbsolutePath());
+		out = rutaTmp.substring(0, rutaTmp.length() - 1);
+		out = (out+"bbdd"+File.separatorChar+"database.fdb");
+		dataSource = new org.firebirdsql.pool.FBWrappingDataSource();
+		dataSource.setDatabase("localhost/3050:"+out);
+		dataSource.setUserName("sysdba");
+		dataSource.setPassword("masterkey");
+		dataSource.setPooling(true); // this turns on pooling for this data source. Max and min must be set.
+		dataSource.setMinPoolSize(5); // this sets the minimum number of connections to keep in the pool
+		dataSource.setMaxPoolSize(30); // this sets the maximum number of connections that can be open at one time.
+		dataSource.setLoginTimeout (10);
+		dataSource.setMaxStatements(Integer.MAX_VALUE);	
+		dataSource.setBlockingTimeout(10);
+		dataSource.setMaxIdleTime(Integer.MAX_VALUE);
+		// this some kind of equivalent to dataSource.setNetworkProtocol(String)
+		// possible values are "type4", "type2" and "embedded".
+		dataSource.setType("TYPE4");	
+		// Character encoding for the connection is set to NONE
+		dataSource.setEncoding("NONE");
+		
+		
+		File arch = new File(".\\configuracion.xml");
+		conf = null;
+		if( arch.exists() ){
+			XMLDecoder d;
+			try {
+				d = new XMLDecoder(
+						new BufferedInputStream(
+								new FileInputStream("configuracion.xml")));
+				conf =(Configuracion)d.readObject();
+				d.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else{
+			Hashtable numbers = new Hashtable();
+			numbers.put("servidor", "");
+			numbers.put("ruta", "");
+			numbers.put("fecha_actualizacion", "");
+			try {
+				XMLEncoder e;
+				e = new XMLEncoder(
+						new BufferedOutputStream(
+								new FileOutputStream("configuracion.xml")));
+				e.writeObject(conf=new Configuracion(numbers));
+				e.close();
+				
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}			
+		}
+	}
+//	==================================================================	
+	public Connection  getConexion(){
+//		==================================================================	
+		//abro la conexion con la bbdd
+		Connection conexion=null;
+		try {
+			conexion=dataSource.getConnection();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return conexion;
+		
+	}
+	
+//	==================================================================	
+	public Connection  getConexionTecno(){
+//		==================================================================	
+		//abro la conexion con la bbdd
+		Connection conexion=null;
+		try {
+			conexion=dataSourceTecno.getConnection();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return conexion;
+		
+	}
+//	==================================================================
+	public boolean setConfiguracion(Configuracion config)
+//	==================================================================
+	{
+		boolean out=false;
+		try {
+			XMLEncoder e;
+			e = new XMLEncoder(
+					new BufferedOutputStream(
+							new FileOutputStream("configuracion.xml")));
+			e.writeObject(config);
+			e.close();
+			out=true;
+			return out;
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			
+		}
+		
+		return out;
+	}
+	
+//	==================================================================
+	public Configuracion getconfiguracion()
+//	==================================================================
+	{
+		return conf;
+	}
+//	==================================================================
+	public ImageIcon getIcono(String nombre) 
+//	==================================================================
+	{	
+		String out = new String();
+		File descriptor = new File(".");
+		String rutaTmp = new String(descriptor.getAbsolutePath());
+		out = rutaTmp.substring(0, rutaTmp.length() - 1);
+		return new ImageIcon(out+"img"+File.separatorChar+nombre);
+	}
+//	==================================================================
+	public void getConexTecno() 
+//	==================================================================
+	{	
+		FBWrappingDataSource dataSourceTecno = null;
+		Connection ct = null; //conexion que haremos con tecnopolis
+
+		//ruta = "C:\\work\\Tecnopolis\\Datos\\recursos.gdb";
+		//System.out.println(ruta);
+		//FIN DEBUG
+	
+		Configuracion conf = this.getconfiguracion();
+		String ruta = conf.conseguirValor("ruta").toString();
+		if("".equals(ruta)){
+			SelectTecnopolis st = new SelectTecnopolis(new JFrame(),(String)conf.conseguirValor("ruta"));
+			String valor= st.getTecnopolisDB();
+			if(valor!=null){
+				conf.cambiarValue("ruta",valor);
+				this.setConfiguracion(conf);
+			}
+
+			
+			
+		}
+		//Conectando con la bbdd de tecnopolis
+		dataSourceTecno = new org.firebirdsql.pool.FBWrappingDataSource();
+		dataSourceTecno.setDatabase("localhost/3050:"+ruta);
+		dataSourceTecno.setUserName("sysdba");
+		dataSourceTecno.setPassword("masterkey");
+		dataSourceTecno.setPooling(true); // this turns on pooling for this data source. Max and min must be set.
+		dataSourceTecno.setMinPoolSize(5); // this sets the minimum number of connections to keep in the pool
+		dataSourceTecno.setMaxPoolSize(30); // this sets the maximum number of connections that can be open at one time.
+		dataSourceTecno.setLoginTimeout (10);
+		dataSourceTecno.setMaxStatements(Integer.MAX_VALUE);	
+		dataSourceTecno.setBlockingTimeout(10);
+		dataSourceTecno.setMaxIdleTime(Integer.MAX_VALUE);
+		dataSourceTecno.setType("TYPE4");	
+		dataSourceTecno.setEncoding("NONE");
+					
+		
+
+	}
+	
+	
+	
+}

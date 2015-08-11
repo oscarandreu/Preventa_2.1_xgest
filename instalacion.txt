@@ -1,0 +1,3 @@
+- Añadido "simpleftp.jar".
+- Añadido "tutorial.pdf" en el directorio base por defecto.
+- Añadido "web\db\productos.mdb" como BDD donde realizar las operaciones de exportación web.

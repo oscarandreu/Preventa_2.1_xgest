@@ -1,0 +1,116 @@
+package Gui;
+
+import java.awt.Point;
+import java.beans.PropertyVetoException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.swing.JDesktopPane;
+import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+
+import scrollabletablemodel.ScrollableTableModel;
+import data.SysData;
+
+/**
+ * es la gui de gestion del servidor sonde se le meteria la direccion del servidor
+ * @author Elena
+ *
+ */
+public class GestionPda {
+
+	private JPanel panel = null;
+	public JInternalFrame frame = null;  //  @jve:decl-index=0:visual-constraint="34,12"
+	protected SysData sys;
+	private JScrollPane jScrollPane = null;
+	private JTable jTable = null;	
+	private Connection conect=null;
+//	==================================================================
+	public GestionPda( SysData sys) 
+//	==================================================================
+	{
+		this.sys = sys;
+		conect=sys.getConexion();
+		
+		
+	}
+//	==================================================================
+	public JInternalFrame initialize( JDesktopPane jDesktopPane ) 
+//	==================================================================
+	{
+		frame = new JInternalFrame();
+		
+		jDesktopPane.add( frame );
+		try {
+			frame.setSelected(true);
+		} catch (PropertyVetoException e1) {
+			e1.printStackTrace();
+		}
+		
+        frame.setSize(new java.awt.Dimension(520,327));
+        frame.setClosable(true);
+        frame.setLocation(new Point(200, 200));
+        frame.setToolTipText("Configuracióon del servidor web de enlace con las PDA's");
+        frame.setTitle("Gestión del servidor");
+        frame.setContentPane(getPanel());
+        frame.setFrameIcon(sys.getIcono("data.gif"));
+        frame.setVisible(true);	
+        
+        return frame;
+	}
+
+//	==================================================================
+	private JPanel getPanel() 
+//	==================================================================
+	{
+		if (panel == null) {
+			panel = new JPanel();
+			panel.setLayout(null);
+			panel.add(getJScrollPane(), null);
+			
+		}
+		return panel;
+	}
+	/**
+	 * This method initializes jScrollPane	
+	 * 	
+	 * @return javax.swing.JScrollPane	
+	 */
+	private JScrollPane getJScrollPane() {
+		if (jScrollPane == null) {
+			jScrollPane = new JScrollPane();
+			jScrollPane.setBounds(new java.awt.Rectangle(1,0,272,291));
+			jScrollPane.setViewportView(getJTable());
+		}
+		return jScrollPane;
+	}
+	/**
+	 * This method initializes jTable	
+	 * 	
+	 * @return javax.swing.JTable	
+	 */
+	private JTable getJTable() {
+		if (jTable == null) {
+			jTable = new JTable();
+			
+			try {
+				Statement stmt = conect.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+						ResultSet.CONCUR_READ_ONLY);
+				ResultSet resul = stmt.executeQuery("Select marca,modelo,obsevaciones from ppc");
+				
+				ScrollableTableModel scroll = new ScrollableTableModel(resul);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//stmt
+			
+		}
+		return jTable;
+	}
+
+}  //  @jve:decl-index=0:visual-constraint="2,21"

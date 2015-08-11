@@ -1,0 +1,239 @@
+package Gui;
+
+import importar.PanelImportar;
+
+import java.awt.BorderLayout;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyVetoException;
+
+import javax.swing.BorderFactory;
+import javax.swing.JDesktopPane;
+import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
+
+import net.https;
+
+import data.Configuracion;
+import data.SysData;
+
+
+public class MainGui {
+
+	public JFrame jFrame = null;  //  @jve:decl-index=0:visual-constraint="53,26"
+	protected JDesktopPane jDesktopPane = null;
+	public SysData sys = null;
+	protected Loader loader = null;
+	protected JLabel imagen=null;
+	protected JMenuBar jJMenuBar = null;
+	protected JMenu menuAdministracion = null;
+	protected JMenuItem menuImportar = null;
+	protected JMenuItem menuConfServidor = null;
+	protected JMenuItem menuEmpresa = null;
+	private JMenuItem GestionPdas = null;
+	
+//	==================================================================	
+	public MainGui(SysData sys,Loader loader)
+//	==================================================================	
+	{
+		this.sys = sys;
+		this.loader=loader;
+		https conexserv = new https(this);
+		conexserv.start();
+		getJFrame();
+		if(loader!=null){
+			loader.dispose();
+		}
+	}
+//	==================================================================
+	private void getJFrame() 
+//	==================================================================
+	{
+		if (jFrame == null) {
+			jFrame = new JFrame();
+			jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			FlowLayout flowLayout = new FlowLayout();
+			flowLayout.setAlignment(FlowLayout.RIGHT);
+			flowLayout.setHgap(0);
+			flowLayout.setVgap(-5);			
+			jFrame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+			jFrame.setJMenuBar(getJJMenuBar());
+			jFrame.setSize(new Dimension(809, 501));
+			jFrame.setTitle("PREVENTA");
+			jFrame.setResizable(false);
+			jFrame.setName("mainFrame");
+			jFrame.setIconImage( sys.getIcono("logo mobisys.jpg").getImage() );
+			JPanel panel=new JPanel();
+			panel.setLayout(new BorderLayout());
+			JPanel centro=new JPanel();
+			JPanel sur=new JPanel();
+			sur.setLayout(new GridLayout(1,2));
+			sur.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+			sur.setPreferredSize(new Dimension(254, 30));
+			centro.setLayout(new GridLayout(1,1));
+			//JButton boton=new JButton("dfsdfsdf");
+			centro.add(getJDesktopPane());
+
+			JPanel semaforo=new JPanel();
+			semaforo.setLayout(flowLayout);
+			semaforo.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+			JLabel label=new JLabel("pedidos en cola");
+			imagen= new JLabel();
+			cambiarSemaforo( 1 );
+			semaforo.add(imagen, null);
+			sur.add(label, label.getName());
+			sur.add(semaforo, null);
+			panel.add(sur, BorderLayout.SOUTH);
+			panel.add(centro, BorderLayout.CENTER);
+			jFrame.setContentPane(panel);
+			jFrame.setVisible(true);
+			
+		}
+	}
+
+//	==================================================================
+	private JDesktopPane getJDesktopPane() 
+//	==================================================================
+	{
+		if (jDesktopPane == null) {
+			jDesktopPane = new JDesktopPane();
+			jDesktopPane.setBounds(new Rectangle(1, 0, 417, 183));
+		}
+		return jDesktopPane;
+	}
+
+//	==================================================================
+	public void cambiarSemaforo(int in)
+//	==================================================================
+	{
+		String semaforo = null;;
+		switch( in ){
+		case 1:
+			semaforo = "semaforoV.gif";
+			break;
+		case 2:
+			semaforo = "semaforoA.gif";
+			break;
+		case 3:
+			semaforo = "semaforoR.gif";
+			break;
+		}
+		
+		imagen.setIcon( sys.getIcono(semaforo) );
+		imagen.repaint();
+	}
+//	==================================================================
+	private JMenuBar getJJMenuBar() 
+//	==================================================================
+	{
+		if (jJMenuBar == null) {
+			jJMenuBar = new JMenuBar();
+			jJMenuBar.add(getMenuAdministracion());
+		}
+		return jJMenuBar;
+	}
+//	==================================================================
+	private JMenu getMenuAdministracion() 
+//	==================================================================
+	{
+		if (menuAdministracion == null) {
+			menuAdministracion = new JMenu();
+			menuAdministracion.setText("Administración");
+			menuAdministracion.add(getMenuConfServidor());
+			menuAdministracion.add(getMenuImportar());
+			menuAdministracion.add(getMenuEmpresa());
+			menuAdministracion.add(getGestionPdas());
+		}
+		return menuAdministracion;
+	}
+//	==================================================================
+	private JMenuItem getMenuImportar() 
+//	==================================================================
+	{
+		if (menuImportar == null) {
+			menuImportar = new JMenuItem();
+			menuImportar.setText("Importar");
+			menuImportar.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					PanelImportar importar =new PanelImportar( sys );	
+					importar.initialize( jDesktopPane ); 					
+				}
+			});
+		}
+		return menuImportar;
+	}
+//	==================================================================
+	private JMenuItem getMenuConfServidor() 
+//	==================================================================
+	{
+		if (menuConfServidor == null) {
+			menuConfServidor = new JMenuItem();
+			menuConfServidor.setText("Configurar servidor");
+			menuConfServidor.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					ConfiguracionServidorWeb confWeb = new ConfiguracionServidorWeb( sys );
+					confWeb.initialize( jDesktopPane );
+				}
+			});
+		}
+		return menuConfServidor;
+	}
+	/**
+	 * This method initializes menuEmpresa	
+	 * 	
+	 * @return javax.swing.JMenuItem	
+	 */
+//	==================================================================
+	private JMenuItem getMenuEmpresa() 
+//	==================================================================
+	{
+		if (menuEmpresa == null) {
+			menuEmpresa = new JMenuItem();
+			menuEmpresa.setText("Empresa");
+			menuEmpresa.setIcon( sys.getIcono("import.gif") );
+			menuEmpresa.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {					
+					String valor=null;
+					Configuracion conf = sys.getconfiguracion();
+					SelectTecnopolis st = new SelectTecnopolis(new JFrame(),(String)conf.conseguirValor("ruta"));
+					valor= st.getTecnopolisDB();
+					if(valor!=null){
+						conf.cambiarValue("ruta",valor);
+						sys.setConfiguracion(conf);
+					}
+				}
+			});
+		}
+		return menuEmpresa;
+	}
+	/**
+	 * This method initializes GestionPdas	
+	 * 	
+	 * @return javax.swing.JMenuItem	
+	 */
+	private JMenuItem getGestionPdas() {
+		if (GestionPdas == null) {
+			GestionPdas = new JMenuItem();
+			GestionPdas.setText("Gestion Pda");
+			menuConfServidor.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					GestionPda gestPda = new GestionPda ( sys );
+					gestPda.initialize( jDesktopPane );
+				}
+			});
+		}
+		return GestionPdas;
+	}
+
+}

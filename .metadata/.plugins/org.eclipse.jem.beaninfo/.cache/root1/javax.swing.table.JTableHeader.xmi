@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<change:ChangeDescription xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:change="http://www.eclipse.org/emf/2003/Change" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:org.eclipse.jem.internal.beaninfo.beaninfo="http:///org/eclipse/jem/internal/beaninfo/beaninfo.ecore" xmlns:org.eclipse.jem.internal.java="java.xmi">
+  <objectChanges key="org.eclipse.jem.internal.java:JavaClass java:/javax.swing.table#JTableHeader">
+    <value featureName="eAnnotations">
+      <listChanges referenceValues="#//@objectsToAttach.0"/>
+    </value>
+    <value featureName="eStructuralFeatures">
+      <listChanges referenceValues="#//@objectsToAttach.1 #//@objectsToAttach.2 #//@objectsToAttach.3 #//@objectsToAttach.4 #//@objectsToAttach.5 #//@objectsToAttach.6 #//@objectsToAttach.7 #//@objectsToAttach.8 #//@objectsToAttach.9 #//@objectsToAttach.10 #//@objectsToAttach.11 #//@objectsToAttach.12"/>
+    </value>
+  </objectChanges>
+  <objectsToAttach xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:BeanDecorator" implicitDecoratorFlag="IMPLICIT_DECORATOR"/>
+  <objectsToAttach xsi:type="ecore:EReference" name="table" eType="org.eclipse.jem.internal.java:JavaClass java:/javax.swing#JTable" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getTable(" writeMethod="java:/javax.swing.table#JTableHeader.setTable(javax.swing.JTable"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="defaultRenderer" eType="org.eclipse.jem.internal.java:JavaClass java:/javax.swing.table#TableCellRenderer" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getDefaultRenderer(" writeMethod="java:/javax.swing.table#JTableHeader.setDefaultRenderer(javax.swing.table.TableCellRenderer"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="accessibleContext" eType="org.eclipse.jem.internal.java:JavaClass java:/javax.accessibility#AccessibleContext" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getAccessibleContext("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="resizingColumn" eType="org.eclipse.jem.internal.java:JavaClass java:/javax.swing.table#TableColumn" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getResizingColumn(" writeMethod="java:/javax.swing.table#JTableHeader.setResizingColumn(javax.swing.table.TableColumn"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="reorderingAllowed" eType="org.eclipse.jem.internal.java:JavaDataType java:/#boolean" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getReorderingAllowed(" writeMethod="java:/javax.swing.table#JTableHeader.setReorderingAllowed(boolean"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="updateTableInRealTime" eType="org.eclipse.jem.internal.java:JavaDataType java:/#boolean" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getUpdateTableInRealTime(" writeMethod="java:/javax.swing.table#JTableHeader.setUpdateTableInRealTime(boolean"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="columnModel" eType="org.eclipse.jem.internal.java:JavaClass java:/javax.swing.table#TableColumnModel" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getColumnModel(" writeMethod="java:/javax.swing.table#JTableHeader.setColumnModel(javax.swing.table.TableColumnModel"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="draggedColumn" eType="org.eclipse.jem.internal.java:JavaClass java:/javax.swing.table#TableColumn" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getDraggedColumn(" writeMethod="java:/javax.swing.table#JTableHeader.setDraggedColumn(javax.swing.table.TableColumn"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="resizingAllowed" eType="org.eclipse.jem.internal.java:JavaDataType java:/#boolean" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getResizingAllowed(" writeMethod="java:/javax.swing.table#JTableHeader.setResizingAllowed(boolean"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="draggedDistance" eType="org.eclipse.jem.internal.java:JavaDataType java:/#int" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getDraggedDistance(" writeMethod="java:/javax.swing.table#JTableHeader.setDraggedDistance(int"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="UI" eType="org.eclipse.jem.internal.java:JavaClass java:/javax.swing.plaf#TableHeaderUI" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getUI(" writeMethod="java:/javax.swing.table#JTableHeader.setUI(javax.swing.plaf.TableHeaderUI"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="UIClassID" eType="org.eclipse.jem.internal.java:JavaClass java:/java.lang#String" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" bound="true" readMethod="java:/javax.swing.table#JTableHeader.getUIClassID("/>
+  </objectsToAttach>
+</change:ChangeDescription>

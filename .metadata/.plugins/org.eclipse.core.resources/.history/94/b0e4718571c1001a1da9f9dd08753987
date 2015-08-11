@@ -1,0 +1,891 @@
+package net;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Calendar;
+import java.util.Hashtable;
+import java.util.Random;
+import java.util.StringTokenizer;
+
+import log.LogWriter;
+import Gui.ErrorPane;
+import Gui.MainGui;
+import data.SysData;
+public class ServerThread extends Thread {
+	
+	//DEBUG
+	static final int MAX_PDAS = 5;
+	//FIN DEBUG
+	
+	protected Socket clientSock;
+	protected BufferedReader entrada;
+	protected PrintWriter salida;
+	protected SysData db;
+	protected MainGui gui;
+	protected Connection c;
+	protected Statement s;
+	
+	protected String op;
+	protected String cod_pda;
+	protected String cod_user;
+	protected String pass_user;
+	protected String database;
+	
+//	==================================================================	
+	public  ServerThread(Socket s, SysData dbIn, MainGui gui) throws java.io.IOException
+//	==================================================================
+	{	
+		clientSock = s; 
+		this.gui = gui;
+		this.db = dbIn;
+		entrada = new BufferedReader(
+				new InputStreamReader(clientSock.getInputStream()));
+		salida = new PrintWriter(clientSock.getOutputStream());		
+	}
+//	===================================================================
+	public String stringReplace (String s, String f, String r)
+//	===================================================================
+	{
+		if (s == null)  return s;
+		if (f == null)  return s;
+		if (r == null)  r = "";
+
+		int index01 = s.indexOf( f );
+		//Returns the index within this string of the first occurrence of the specified character.
+		while (index01 != -1)
+		{
+			s = s.substring(0,index01) + r + s.substring(index01+f.length());			
+			index01 += r.length();
+			index01 = s.indexOf( f, index01 );
+		}
+		return s;
+	}
+//	==================================================================	
+	protected void enviarDatos(String in)
+//	==================================================================
+	{
+		in = stringReplace(in,"null"," ");
+		System.out.println("-> "+in);
+		//in = this.eweEncode(in);
+		salida.println(byteArrayToHexString(in.getBytes()));
+		//System.out.println("-> "+byteArrayToHexString(in.getBytes()));
+		salida.flush();
+	}
+//	==================================================================
+	protected String recibirDatos() throws IOException
+//	==================================================================
+	{
+		String out = "";
+		out = entrada.readLine();
+		//System.out.println("<- "+out);
+		//out = this.eweDecode(new String(hexStringToByteArray(out)));
+		out = new String(hexStringToByteArray(out) );
+		System.out.println("<- "+out);
+		return out;
+	}
+//	==================================================================	
+	public void run()
+//	==================================================================
+	{
+		String datos;
+		try {
+			datos = recibirDatos();
+			//Si los datos son una peticion web
+			if(datos.contains("GET") || datos.contains("http") || datos.contains("://")){
+				fakeWebServer();
+			}else{
+				//leemos los datos que nos proporciona le clientey generamos las conexiones a la bbdd
+				StringTokenizer st = new StringTokenizer(datos,"#");
+				if(st.countTokens()==4){
+					op = st.nextToken();
+					cod_pda = st.nextToken();
+					cod_user = st.nextToken();
+					pass_user = st.nextToken();// opcion tres sera nombre de tabla
+					
+					int operacion = Integer.parseInt(op);
+					c= db.getConexionPropia();
+					s =c.createStatement();
+					switch(operacion){
+						case 1:			
+							altaPDA();				
+							break;
+						case 4:
+							loginPDA();
+							break;	
+						case 2:
+							rDatos();
+							break;
+						case 3:
+							eDatos();
+							break;
+					}
+				}	
+				if( s != null )
+					s.close();
+				if( c != null )
+					c.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			//new ErrorPane("Error de lectura/escritura.\nError:ST1");
+			new LogWriter(e.getStackTrace() );
+		}catch(NullPointerException ioe) {
+			ioe.printStackTrace();
+			//new ErrorPane("Error de desbordamiento.\nError:ST2");
+			new LogWriter(ioe.getStackTrace() );
+		} catch (SQLException ioe) {
+			ioe.printStackTrace();
+			//new ErrorPane("Error de desbordamiento.\nError:ST3");
+			new LogWriter(ioe.getStackTrace());
+		}
+//		Finalizar conexion
+		try {
+			entrada.close();
+			salida.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			new ErrorPane("Error al cerrar Socket.\nError:ST3");
+			new LogWriter(e.getStackTrace() );
+		}
+		try {
+			clientSock.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+
+				
+		
+		
+		
+	protected void rDatos(){
+				
+	Hashtable tabla=new Hashtable();
+	int num=0;	
+	
+
+	String query = "SELECT id,codigo_agente FROM PPC WHERE " +
+	"id='"+cod_pda+"'AND "+"codigo_agente='"+cod_user+"'" ;
+	try {
+		//Se comprueban las credenciales
+		ResultSet rs = s.executeQuery (query);
+		int count=0;
+		if(rs.next()){			
+			this.enviarDatos("OK");
+			database=recibirDatos();
+			boolean flat=true;
+			String nombreTabla="CABECERAPEDIDO";
+			database=this.añadirvalor(database,cod_user,true);
+				while( !"EOF".equals(database) ){
+				 if("CABECERAPEDIDO".equals(nombreTabla)){
+				String nuevo=Valor(database,1)+"#"+String.valueOf(new Long(Calendar.getInstance().getTimeInMillis()).intValue())+"#"+this.cod_user;
+				tabla.put(Valor(database,1),nuevo); 
+				database=cambiarvalor(database,1,nuevo);
+				num++;
+				 }
+				if("LINEAPEDIDO".equals(nombreTabla)){	
+				String cadena=(String)tabla.get(Valor(database,1));
+				if(!"".equals(cadena)){
+				database=cambiarvalor(database,1,cadena);
+				
+				}
+				num++;
+				}
+				if("DPERSONALES".equals(nombreTabla)){	
+					//String cadena=(String)tabla.get(Valor(database,1));
+					String cadena1=dividir( database,1,15);
+					String cadena2=dividir( database,1,15);
+					//----s.executeUpdate(this.formatear("DBANCARIOS",cadena1));
+					//----s.executeUpdate(this.formatear("DCOMERCIALES",cadena2));
+					//database=cambiarvalor(database,1,cadena);
+					database=dividir( database,1,15);
+					num++;
+					 }
+				
+				//System.out.println("BBDD--> "+ database);
+				//Calculo el numero de entradas que se envian al cliente
+	            //--------s.executeUpdate(this.formatear(nombreTabla, database));
+				StringTokenizer token2= new StringTokenizer(database,"#");
+				if(token2.countTokens()==2){
+					String cadena=token2.nextToken();
+					if("NUM".equals(cadena)){
+					
+					database = recibirDatos();
+					}
+					}else{
+				System.out.println(this.formatear(nombreTabla, database));
+				}
+					//Tomo los datos de la tabla
+				//Miro si se necesita alguna tabla mas
+				database = recibirDatos();
+				StringTokenizer token= new StringTokenizer(database,"#");
+				if(token.countTokens()==2){
+					String cadena=token.nextToken();
+					if("NUM".equals(cadena)){
+					this.enviarDatos("0");	
+					database = recibirDatos();
+					}
+					
+				}
+				if ("EOF".equals(database)&& flat){
+				
+				this.enviarDatos(new Integer(num).toString());	
+				num=0;
+				count++;
+				switch(count){
+				case 1:			
+					nombreTabla="LINEAPEDIDO";					
+					break;
+				case 2:
+					nombreTabla="DPERSONALES";
+					flat=false;
+					
+					break;	
+				case 3:
+					
+					break;
+				case 4:
+					eDatos();
+					break;
+			}
+				database = recibirDatos();
+				if (count==2)
+				flat=false;
+													
+				}
+				
+			}
+		}else{
+			//Si las credenciales no son las adecuadas
+	this.enviarDatos("EOF");				
+	}
+	} catch (IOException e) {
+	e.printStackTrace();
+	//new LogWriter(e.getStackTrace() );
+	} catch (SQLException e) {
+	e.printStackTrace();
+	
+	//new LogWriter(e.getStackTrace() );
+	} catch (Exception e) {
+	e.printStackTrace();
+	//new LogWriter(e.getStackTrace() );
+	}
+			
+			
+			
+		}
+//	==================================================================		
+	protected void eDatos()
+//	==================================================================	
+	{
+		String query = "SELECT id,codigo_agente FROM PPC WHERE " +
+						"id='"+cod_pda+"'AND "+"codigo_agente='"+cod_user+"'" ;
+		try {
+			//Se comprueban las credenciales
+			ResultSet rs = s.executeQuery (query);			
+			if(rs.next()){			
+				this.enviarDatos("OK");
+				database = recibirDatos();
+				while( !"EOF".equals(database) ){
+					//System.out.println("BBDD--> "+ database);
+					//Calculo el numero de entradas que se envian al cliente
+					
+						//Tomo los datos de la tabla
+						if("clientes".equals(database)){
+							this.enviarClientes(cod_user);
+							this.enviarDatos("EOF");							
+						}else{							
+							int filas = numeroDeEntradas(database);
+							this.enviarDatos(String.valueOf(filas));
+							if(filas != 0){
+								this.tokenizaryEnviar(database,0);
+								this.enviarDatos("EOF");	
+							}
+						}					
+					//Miro si se necesita alguna tabla mas
+					database = recibirDatos(); 
+				}
+			}else{
+				//Si las credenciales no son las adecuadas
+				this.enviarDatos("EOF");				
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			//new LogWriter(e.getStackTrace() );
+		} catch (SQLException e) {
+			e.printStackTrace();
+			//new LogWriter(e.getStackTrace() );
+		} catch (Exception e) {
+			e.printStackTrace();
+			//new LogWriter(e.getStackTrace() );
+		}
+	}
+//	==================================================================		
+	protected int numeroDeEntradas(String nombreTabla)
+//	==================================================================	
+	{
+		int count=0;
+		String query = "SELECT * FROM "+nombreTabla ;
+		try {
+			ResultSet rs = s.executeQuery (query);
+			while(rs.next()){
+				count++;			
+			}
+			rs.close();
+			//System.out.println("entradas en "+nombreTabla+" : "+count);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		return count;			
+	}
+//	==================================================================		
+	protected String formatear(String TablaNombre,String valores){
+//	==================================================================		
+		
+		String aux=null;
+		StringTokenizer token= new StringTokenizer(valores,"#");
+		String insertar="";
+		int i=1;
+		int limite=token.countTokens();
+		while(token.hasMoreElements()){
+			aux="'"+token.nextToken()+"'";
+			if (i<limite){
+			insertar=insertar+aux+", ";
+			}else{
+			if (i==limite)	
+			insertar=insertar+aux;
+			}
+			i=i+1;
+			
+		}
+		
+		return "INSERT INTO "+TablaNombre+" VALUES "+"("+insertar+")" ;
+		
+	}
+//	==================================================================		
+	protected String dividir(String valores,int posicion1,int posicion2){
+//	==================================================================		
+		
+		String aux=null;
+		StringTokenizer token= new StringTokenizer(valores,"#");
+		String insertar="";
+		int i=1;
+		int limite=token.countTokens();
+		while(token.hasMoreElements()){
+			aux=token.nextToken();
+			if (i>=posicion1 && i<=posicion2){
+			if (i<limite &&  i!=posicion2 ){
+			insertar=insertar+aux+"#";
+			}else{
+			if (i==limite || i==posicion2 )	
+			insertar=insertar+aux;
+			}
+			}
+			i=i+1;
+			
+		}
+		
+		return insertar;
+		
+	}
+//	==================================================================		
+	protected String cambiarvalor(String valores,int posicion, String nuevoValor){
+//	==================================================================		
+		
+		String aux=null;
+		StringTokenizer token= new StringTokenizer(valores,"#");
+		String insertar="";
+		int i=1;
+		int limite=token.countTokens();
+		while(token.hasMoreElements()){
+			aux=token.nextToken();
+			if(i==posicion){
+				
+			aux=nuevoValor;
+				
+			}
+			
+			if (i<limite){
+			insertar=insertar+aux+"#";
+			}else{
+			if (i==limite)	
+			insertar=insertar+aux;
+			}
+			i=i+1;
+			
+		}
+		
+		return insertar;
+		
+	}
+	public String añadirvalor(String valores,String valor,boolean flat){
+		if (flat){
+		valores=valores+"#"+valor;
+		}else{
+		valores=valor+"#"+valores;
+		
+		}
+		return valores;
+	}
+	
+	protected String Valor(String valores,int posicion){
+		StringTokenizer token= new StringTokenizer(valores,"#");
+		int count=0;
+		String valor=null;
+		while(token.hasMoreElements() && count<posicion){
+			count++;
+			valor=token.nextToken();
+							
+		}
+				
+		return valor;
+	}
+	protected void 	enviarRutas(String cod){
+		
+		
+		
+		
+		
+	}
+
+	
+//	==================================================================	
+	protected void 	enviarClientes(String cod)
+//	==================================================================	
+	{
+		String query = new String();
+		String datos = new String();
+		query = "SELECT " +
+			"a.CODIGO FROM dpersonales a, dcomerciales b, dbancarios c " +
+			"WHERE b.agente = '"+cod+"' AND a.codigo = b.codigo AND a.codigo = c.codigo";
+		int i = 0;
+		try {
+			ResultSet rs = s.executeQuery (query);
+			while(rs.next()){
+				i++;
+			}
+			rs.close();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		this.enviarDatos(String.valueOf(i));
+		if(i != 0){
+			query = "SELECT" +
+					" a.CODIGO, a.FECHA_ALTA, a.CODIGO2, a.NOMBRE, a.RAZON, a.DIRECCION1, a.DIRECCION2" +
+					", a.POBLACION, a.PROVINCIA	, a.CONTACTO, a.E_MAIL, a.WEB, a.NIF" +
+					", a.TELEFONO1, a.TELEFONO2, a.FAX, a.COD_PAIS, a.COD_POSTAL" +
+					", b.RUTA, b.ZONA, b.DIA_VISITA, b.TIPO, b.ACTIVIDAD, b.AGENTE, b.FORMA_PAGO, b.IVA_FIJO, b.IRPF" +
+					", c.DIVISA, c.TARIFA, c.DIA_PAGO1, c.DIA_PAGO2, c.DIA_PAGO3, c.MES_NO_PAGO" +
+					", c.DTO_1, c.DTO_2, c.DTO_PP, c.INCREMENTO, c.PORTES, c.RIESG_SOLICITA, c.RIESGO_CONCED" +
+					", c.RIESGO_DISP, c.REC_EQUI, c.BANCO, c.ENTIDAD, c.SUCURSAL, c.CB, c.CC, c.OBSERVACIONES, c.AVISO" +
+					" FROM dpersonales a, dcomerciales b, dbancarios c" +
+					" WHERE b.agente = '"+cod+"' AND a.codigo = b.codigo AND a.codigo = c.codigo";
+			try {
+				ResultSet rst = s.executeQuery (query);
+				while(rst.next()){
+					// Envio de los datos personales
+					datos = 
+							rst.getString("codigo")+"#"+
+							rst.getString("FECHA_ALTA")+"#"+
+							rst.getString("CODIGO2")+"#"+
+							rst.getString("NOMBRE")+"#"+
+							rst.getString("RAZON")+"#"+	
+							rst.getString("DIRECCION1")+"#"+
+							rst.getString("DIRECCION2")+"#"+
+							rst.getString("POBLACION")+"#"+	
+							rst.getString("PROVINCIA")+"#"+
+							rst.getString("CONTACTO")+"#"+
+							rst.getString("E_MAIL")+"#"+
+							rst.getString("WEB")+"#"+
+							rst.getString("NIF")+"#"+
+							rst.getString("TELEFONO1")+"#"+
+							rst.getString("TELEFONO2")+"#"+
+							rst.getString("FAX")+"#"+
+							rst.getString("COD_PAIS")+"#"+
+							rst.getString("COD_POSTAL")+"#"+
+
+					//this.enviarDatos(datos);
+					
+//					 Envio de los datos comerciales
+					//datos = 
+						rst.getString("codigo")+"#"+
+						rst.getString("ACTIVIDAD")+"#"+
+						rst.getInt("AGENTE")+"#"+	
+						rst.getString("DIA_VISITA")+"#"+
+						rst.getString("FORMA_PAGO")+"#"+
+						rst.getString("IRPF")+"#"+
+						rst.getString("IVA_FIJO")+"#"+
+						rst.getString("RUTA")+"#"+
+						rst.getString("TIPO")+"#"+
+						rst.getString("ZONA");
+					
+					this.enviarDatos(datos);
+					
+					//Envio de los datos bancarios
+					datos = 
+						rst.getString("CODIGO")+"#"+
+						rst.getString("DIVISA")+"#"+
+						rst.getString("TARIFA")+"#"+
+						rst.getInt("DIA_PAGO1")+"#"+
+						rst.getInt("DIA_PAGO2")+"#"+
+						rst.getInt("DIA_PAGO3")+"#"+
+						rst.getInt("MES_NO_PAGO")+"#"+
+						rst.getInt("DTO_1")+"#"+
+						rst.getInt("DTO_2")+"#"+
+						rst.getInt("DTO_PP")+"#"+
+						rst.getInt("INCREMENTO")+"#"+
+						rst.getString("PORTES")+"#"+
+						rst.getInt("RIESG_SOLICITA")+"#"+
+						rst.getInt("RIESGO_CONCED")+"#"+
+						rst.getInt("RIESGO_DISP")+"#"+
+						rst.getString("REC_EQUI")+"#"+
+						rst.getString("BANCO")+"#"+
+						rst.getInt("ENTIDAD")+"#"+
+						rst.getInt("SUCURSAL")+"#"+
+						rst.getInt("CB")+"#"+
+						rst.getString("CC")+"#"+
+						rst.getString("OBSERVACIONES")+"#"+
+						rst.getString("AVISO");
+
+					this.enviarDatos(datos);
+
+				}
+				rst.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+//	==================================================================	
+	protected void tokenizaryEnviar(String nombreTabla,int restar)
+//	==================================================================	
+	{
+		
+		String datos=new String();
+		String query = "SELECT * FROM "+nombreTabla;
+		try {
+			ResultSet rs = s.executeQuery (query);
+			int columnascount=this.columnas(rs)-restar;
+			//System.out.println("columnas en "+nombreTabla+" : "+columnascount);
+			while(rs.next()){
+				for(int i=1; i<=columnascount;i++){
+					if(i<columnascount){
+						if(! "".equals(rs.getString(i)) ){
+							datos=datos+rs.getString(i)+"#";
+						}else{
+							datos=datos+" "+"#";
+						}
+					}else{
+						if(! "".equals(rs.getString(i))){
+						datos=datos+rs.getString(i);
+						}else{
+							datos=datos+" ";
+						
+						}
+					}
+				} 
+				this.enviarDatos(datos);
+				//System.out.println(datos);	
+				datos="";
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
+	}
+	
+//	==================================================================	
+	protected void tokenizar(String nombreTabla)
+//	==================================================================	
+	{
+		String datos=new String();
+		String query = "SELECT  FROM "+nombreTabla;
+		try {
+			ResultSet rs = s.executeQuery (query);
+			int columnascount=this.columnas(rs);
+			//System.out.println("columnas en "+nombreTabla+" : "+columnascount);
+			while(rs.next()){
+				for(int i=1; i<=columnascount;i++){
+					if(i<columnascount){
+						if(! "".equals(rs.getString(i)) ){
+							datos=datos+rs.getString(i)+"#";
+						}else{
+							datos=datos+" "+"#";
+						}
+					}else{
+						if(! "".equals(rs.getString(i))){
+						datos=datos+rs.getString(i);
+						}else{
+							datos=datos+" ";
+						
+						}
+					}
+				} 
+				
+				//System.out.println(datos);	
+				datos="";
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
+	}
+	
+	
+//	==================================================================
+	public String eweEncode(String linea)
+//	==================================================================
+	{
+		String out = new String();
+		char temp;
+		String sTemp;
+		for(int i=0;i<linea.length();i++){
+			sTemp = "";
+			temp = linea.charAt(i);
+			if(temp =='ñ')
+				sTemp+= "Ã±";
+			if(temp =='Ñ')
+				sTemp+= "Ã‘";
+			if(temp =='á')
+				sTemp+= "Ã¡";
+			if(temp =='é')
+				sTemp+= "Ã©";
+			if(temp =='í')
+				sTemp+= "Ã­";
+			if(temp =='ó')
+				sTemp+= "Ã³";
+			if(temp =='ú')
+				sTemp+= "Ãº";
+			if(temp =='´')
+				sTemp+= "Â´";
+			if(temp =='º')
+				sTemp+= "Âº";
+			if(sTemp == "")
+				sTemp += temp;
+			out+=sTemp;
+		}
+		return out;
+	}
+	
+//	==================================================================
+	public String eweDecode(String linea)
+//	==================================================================
+	{
+		String out = new String();
+		for(int i=0;i<linea.length();i++){
+			if(linea.charAt(i)== 'Ã'){
+				i++;
+				if(linea.charAt(i)== '±'){
+					out+="ñ";
+				}else if(linea.charAt(i)== '‘'){
+					out+="Ñ";
+				}else if(linea.charAt(i)== '¡'){
+					out+="á";
+				}else if(linea.charAt(i)== '©'){
+					out+="é";
+				}else if(linea.charAt(i)== '­'){
+					out+="í";
+				}else if(linea.charAt(i)== '³'){
+					out+="ó";
+				}else if(linea.charAt(i)== 'º'){
+					out+="ó";
+				}
+			}else if(linea.charAt(i)== 'À'){
+				i++;
+				if(linea.charAt(i)== '€'){
+					out+="´";
+				}
+			}else if(linea.charAt(i)== 'Â'){
+				i++;
+				if(linea.charAt(i)== '´'){
+					out+="´";
+				}else if(linea.charAt(i)== 'º'){
+					out+="º";
+				}
+			}else{
+				out+=linea.charAt(i);
+			}
+		}
+		return out;
+	}
+
+
+
+
+	
+//	==================================================================	
+	protected int columnas(ResultSet rs)
+//	==================================================================	
+	{
+		int column=0;
+		try {
+			ResultSetMetaData rsMetaData=rs.getMetaData();
+			column=rsMetaData.getColumnCount();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return column;	
+	}
+
+//	==================================================================		
+	protected void loginPDA()
+//	==================================================================	
+	{
+		//System.out.println("-comprobando credenciales");
+		String query;
+		query = "SELECT nombre,codigo,passw FROM agentes WHERE " +
+				"codigo=" +cod_user+" AND passw='"+pass_user+"'" ;
+		ResultSet rs;
+		try {
+			rs = s.executeQuery (query);
+			if(rs.next()){				
+				//esta comprobación parece innecesaria pero aun asi la hago (sqlinyection)
+				if(rs.getString("codigo").equals(cod_user) && rs.getString("passw").equals(pass_user)){
+					String nombreAgente = rs.getString("nombre");
+					query = "UPDATE PPC set codigo_agente="+
+					cod_user+
+					" WHERE id="+"'"+cod_pda+"';";
+					rs.close();
+					if(s.executeUpdate(query)==1){
+						enviarDatos(this.cod_pda+"#"+nombreAgente);
+					}else{
+						enviarDatos("000000-xx");
+					}
+				}else{
+					enviarDatos("111111-xx");
+				}
+			}else{
+				enviarDatos("111111-xx");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+//	==================================================================	
+	public boolean comprobarUnicidadId(String id)
+//	==================================================================	
+	{
+		boolean out=false;
+		try {		
+			ResultSet rs = s.executeQuery ("SELECT id FROM PPC WHERE id='"+id+"'" );
+			if(rs.next()){
+				out=true;
+			}
+			rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return out;
+	}
+//	==================================================================		
+	protected void altaPDA()
+//	==================================================================	
+	/**recibe la peticion de alta y si todavia se pueden realizar mas altas lo hace 
+	 * enviando un codigo de seis digitos aleatorio, sino envia 000000*/
+	{
+		String query;
+		if(op.equals("01")&& cod_user.equals("000000")&& pass_user.equals("000000")&& cod_pda.equals("000000")){
+			query = "SELECT id FROM PPC";
+			ResultSet rs;
+			int count=0;
+			try {
+				rs = s.executeQuery (query );
+				while(rs.next()){
+					count++;
+				}
+				rs.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+			if(count >= MAX_PDAS){
+				this.enviarDatos("111111");
+			}else{
+				cod_pda = getRandomCad();
+				while(this.comprobarUnicidadId(cod_pda)){
+					cod_pda = getRandomCad();													
+				}
+				try {
+					s.executeUpdate("INSERT INTO PPC (id) VALUES ("+"'"+cod_pda+"'"+")");
+					this.enviarDatos(cod_pda);
+				} catch (SQLException e) {
+					this.enviarDatos("222222");
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}	
+		}else{
+			fakeWebServer();
+		}
+	}
+//	==================================================================		
+	public String byteArrayToHexString(byte[] b)
+//	==================================================================		
+	{
+	    StringBuffer sb = new StringBuffer(b.length * 2);
+	    for (int i = 0; i < b.length; i++){
+	      int v = b[i] & 0xff;
+	      if (v < 16) {
+	        sb.append('0');
+	      }
+	      sb.append(Integer.toHexString(v));
+	    }
+	    return sb.toString().toUpperCase();
+	}
+//	==================================================================		
+	public byte[] hexStringToByteArray(String s) 
+//	==================================================================		
+	{
+	    byte[] b = new byte[s.length() / 2];
+	    for (int i = 0; i < b.length; i++){
+	      int index = i * 2;
+	      int v = Integer.parseInt(s.substring(index, index + 2), 16);
+	      b[i] = (byte)v;
+	    }
+	    return b;
+	  }
+//	==================================================================	
+	protected void fakeWebServer()
+//	==================================================================	
+	{
+		//Devuelve una respuesta simulando un servidor web
+		enviarDatos("\n");
+		enviarDatos("HTTP/1.1 200 OK");
+		enviarDatos("Server: Apache/1.3.29 (Win32) PHP/4.3.4");
+		enviarDatos("Connection: close");
+		enviarDatos("Content-Type: text/html; charset=iso-8859-1");
+		enviarDatos("\n");
+		enviarDatos("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">"+
+					"<HTML><HEAD>"+
+					"<TITLE>Pagina en construcción</TITLE>"+
+					"</HEAD><BODY>"+
+					"<H1>Pagina en construcción</H1>"+
+					"<HR>"+
+					"<p>Lamentamos las molestias.</p>"+
+					"</BODY></HTML>");
+	}
+//	==================================================================	
+	protected String getRandomCad()
+//	==================================================================	
+	{
+		Random rand = new Random();
+		String out = new String();
+		out+= Integer.toHexString(rand.nextInt());
+		out=out.substring(0,6);
+		return out;
+	}
+}

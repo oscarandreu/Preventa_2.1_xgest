@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<change:ChangeDescription xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:change="http://www.eclipse.org/emf/2003/Change" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:org.eclipse.jem.internal.beaninfo.beaninfo="http:///org/eclipse/jem/internal/beaninfo/beaninfo.ecore" xmlns:org.eclipse.jem.internal.java="java.xmi">
+  <objectChanges key="org.eclipse.jem.internal.java:JavaClass java:/java.sql#ResultSet">
+    <value featureName="eAnnotations">
+      <listChanges referenceValues="#//@objectsToAttach.0"/>
+    </value>
+    <value featureName="eStructuralFeatures">
+      <listChanges referenceValues="#//@objectsToAttach.1 #//@objectsToAttach.2 #//@objectsToAttach.3 #//@objectsToAttach.4 #//@objectsToAttach.5 #//@objectsToAttach.6 #//@objectsToAttach.7 #//@objectsToAttach.8 #//@objectsToAttach.9 #//@objectsToAttach.10 #//@objectsToAttach.11 #//@objectsToAttach.12 #//@objectsToAttach.13"/>
+    </value>
+  </objectChanges>
+  <objectsToAttach xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:BeanDecorator" implicitDecoratorFlag="IMPLICIT_DECORATOR"/>
+  <objectsToAttach xsi:type="ecore:EReference" name="statement" eType="org.eclipse.jem.internal.java:JavaClass java:/java.sql#Statement" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.getStatement("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="row" eType="org.eclipse.jem.internal.java:JavaDataType java:/#int" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.getRow("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="warnings" eType="org.eclipse.jem.internal.java:JavaClass java:/java.sql#SQLWarning" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.getWarnings("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="afterLast" eType="org.eclipse.jem.internal.java:JavaDataType java:/#boolean" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.isAfterLast("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="fetchDirection" eType="org.eclipse.jem.internal.java:JavaDataType java:/#int" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.getFetchDirection(" writeMethod="java:/java.sql#ResultSet.setFetchDirection(int"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="metaData" eType="org.eclipse.jem.internal.java:JavaClass java:/java.sql#ResultSetMetaData" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.getMetaData("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="type" eType="org.eclipse.jem.internal.java:JavaDataType java:/#int" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.getType("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="cursorName" eType="org.eclipse.jem.internal.java:JavaClass java:/java.lang#String" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.getCursorName("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="first" eType="org.eclipse.jem.internal.java:JavaDataType java:/#boolean" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.isFirst("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="concurrency" eType="org.eclipse.jem.internal.java:JavaDataType java:/#int" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.getConcurrency("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="fetchSize" eType="org.eclipse.jem.internal.java:JavaDataType java:/#int" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="60" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.getFetchSize(" writeMethod="java:/java.sql#ResultSet.setFetchSize(int"/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="last" eType="org.eclipse.jem.internal.java:JavaDataType java:/#boolean" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.isLast("/>
+  </objectsToAttach>
+  <objectsToAttach xsi:type="ecore:EReference" name="beforeFirst" eType="org.eclipse.jem.internal.java:JavaDataType java:/#boolean" changeable="false" unsettable="true">
+    <eAnnotations xsi:type="org.eclipse.jem.internal.beaninfo.beaninfo:PropertyDecorator" implicitlySetBits="52" implicitDecoratorFlag="IMPLICIT_DECORATOR_AND_FEATURE" readMethod="java:/java.sql#ResultSet.isBeforeFirst("/>
+  </objectsToAttach>
+</change:ChangeDescription>
